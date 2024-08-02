@@ -1,4 +1,6 @@
-﻿namespace BookOnline.Services.imp
+﻿using Azure;
+
+namespace BookOnline.Services.imp
 {
     public class AuthorService : IAuthorService
     {
@@ -29,9 +31,34 @@
             return await _context.Author.Include(b => b.BookDetail).ToListAsync();
         }
 
-        public async Task<Author> GetByIDAsync(int id)
+        public async Task<Response<Author>> GetByIDAsync(int id)
         {
-            return await _context.Author.Include(a => a.BookDetail).SingleOrDefaultAsync(b => b.Id == id);
+            var res =await _context.Author.Include(a => a.BookDetail).SingleOrDefaultAsync(b => b.Id == id);
+            if(res == null)
+            {
+                return new Response<Author>
+                {
+                    ErrorMessage = "not found",
+                    Success = false,
+                    Result = null
+
+                };
+            }
+
+            return new Response<Author>
+            {
+                ErrorMessage = "",
+                Success = true,
+                Result = res
+
+            };
+            //return await _context.Author.Include(a => a.BookDetail).SingleOrDefaultAsync(b => b.Id == id); // check null condition ? never trust client side 
+        }
+        public class Response<T> where T : class // Genaric Topic
+        {
+            public T Result { get; set; }
+            public bool Success { get; set; }
+            public string ErrorMessage { get; set; }
         }
 
         public Author Update(Author author)

@@ -26,14 +26,19 @@ namespace BookOnline.Services.imp
             return bookDetails;
         }
 
-        public async Task<IEnumerable<BookDetail>> GetAllAsync(int authorId = 0)
+        public async Task<IEnumerable<BookDetail>> GetAllAsync(int authorId = 0) // why default value ?
         {
-            return await _context.BookDetails.Where(b => b.AuthorId == authorId || authorId == 0).Include(b => b.Author).ToListAsync();
+            return await _context.BookDetails
+                .Where(b => b.AuthorId == authorId || authorId == 0)
+                .Include(b => b.Author)
+                .ToListAsync();
+            //readable 
         }
 
         public async Task<BookDetail> GetByIDAsync(int id)
         {
-            return await _context.BookDetails.SingleOrDefaultAsync(b => b.Id == id);
+            return await _context.BookDetails
+                .SingleOrDefaultAsync(b => b.Id == id);
         }
 
         public  BookDetail Update(BookDetail bookDetails)

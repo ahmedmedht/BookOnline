@@ -2,7 +2,7 @@
 
 namespace BookOnline.Dto
 {
-    public class AuthorDto
+    public class AuthorDto //Data Transfer Object
     {
         [MaxLength(100)]
         public string Name { get; set; }

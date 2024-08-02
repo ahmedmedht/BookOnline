@@ -30,6 +30,7 @@ namespace BookOnline.Controllers
             return Ok(products);
 
         }
+
         [HttpGet("GetProductById")]
         public async Task<IActionResult> GetProductById(int id)
         {
@@ -37,6 +38,7 @@ namespace BookOnline.Controllers
             return Ok(product);
 
         }
+
         [HttpPost]
         public async Task<IActionResult> AddNewProduct([FromForm] ProductDto dto)
         {
@@ -81,7 +83,5 @@ namespace BookOnline.Controllers
             return Ok(product);
 
         }
-
-
     }
 }

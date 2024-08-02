@@ -17,13 +17,14 @@ namespace BookOnline.Controllers
 
         private new List<string> _allowedExtenstions = new() { ".jpg", ".png" };
         private long _maxAllowedPosterSize = 1024 * 1024 * 5;
-
+        private string _folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Images");
         public AuthorController(IAuthorService authorService, IMapper mapper)
         {
             _authorService = authorService;
             _mapper = mapper;
            
         }
+
         [HttpGet("GetAuthor")]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -48,6 +49,23 @@ namespace BookOnline.Controllers
                 if (_maxAllowedPosterSize < dto.ImageAuthor.Length)
                     return BadRequest("Max size 1 mb");
 
+                // make sure folder available 
+                if(!Path.Exists(_folderPath))
+                    Directory.CreateDirectory(_folderPath);
+
+                // save image as saving text file , 
+                // befor save , rename b uniqe id => make sure all images has different name GUID
+                Guid guid = Guid.NewGuid();
+                // go database w save l image path ? => _folderPath + image name 
+                // give iamge id in db => guid
+                // link relation image w author 2w bookdeatails 
+                // save chnages db 
+
+                // retun image path 
+
+                // create new api GET IMAGE => controller staticFile
+                // params image path w return image as media file 
+
                 using var dataStream = new MemoryStream();
                 await dto.ImageAuthor.CopyToAsync(dataStream);
 
@@ -58,8 +76,8 @@ namespace BookOnline.Controllers
 
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateTable(int id,[FromForm] AuthorDto dto)
+        [HttpPut("")]// method name ? meaning full method names => UpdateAuthor , 2 params ? why ? 
+        public async Task<IActionResult> UpdateAuthor(int id,[FromForm] AuthorDto dto)
         {   
             
             var author= await _authorService.GetByIDAsync(id);

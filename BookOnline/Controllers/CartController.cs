@@ -26,6 +26,7 @@ namespace BookOnline.Controllers
             return Ok(products);
 
         }
+
         [HttpPost("AddProductToNewCart")]
         public async Task<IActionResult> AddNewCart(ProductCartDto dto)
         {
@@ -53,6 +54,7 @@ namespace BookOnline.Controllers
 
             return Ok(cart);
         }
+
         [HttpPut("AddNewProductToCart")]
         public async Task<IActionResult> AddNewProductToCart(int cartId,ProductCartDto dto)
         {
@@ -134,8 +136,5 @@ namespace BookOnline.Controllers
             _cartService.DeleteCart(cart);
             return Ok(cart);
         }
-
-
-
     }
 }
