@@ -37,7 +37,7 @@ namespace BookOnline.Controllers
             return Ok(product);
 
         }
-        [HttpPost]
+        [HttpPost("AddNewProduct")]
         public async Task<IActionResult> AddNewProduct([FromForm] ProductDto dto)
         {
             var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
@@ -49,7 +49,7 @@ namespace BookOnline.Controllers
             return Ok(product);
         }
 
-        [HttpPut]
+        [HttpPut("UpdateProduct")]
         public async Task<IActionResult> UpdateProduct(int id,[FromForm] ProductDto dto)
         {
             var product = await _bookProductService.GetByIDAsync(id);
@@ -68,7 +68,7 @@ namespace BookOnline.Controllers
             return Ok(product);
         }
 
-        [HttpDelete]
+        [HttpDelete("DeleteProduct")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var product = await _bookProductService.GetByIDAsync(id);

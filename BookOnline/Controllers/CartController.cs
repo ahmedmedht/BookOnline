@@ -19,11 +19,11 @@ namespace BookOnline.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllProduct()
+        [HttpGet("GetAllCart")]
+        public async Task<IActionResult> GetAllCart()
         {
-            var products = await _cartService.GetAllAsync();
-            return Ok(products);
+            var carts = await _cartService.GetAllAsync();
+            return Ok(carts);
 
         }
         [HttpPost("AddProductToNewCart")]

@@ -24,14 +24,14 @@ namespace BookOnline.Controllers
             _mapper = mapper;
            
         }
-        [HttpGet("GetAuthor")]
+        [HttpGet("GetAllAuthor")]
         public async Task<IActionResult> GetAllAsync()
         {
             var res=await _authorService.GetAllAsync();
             return Ok(res);
         }
 
-        [HttpPost]
+        [HttpPost("AddNewAuthor")]
         public async Task<IActionResult> AddAuthor([FromForm] AuthorDto dto)
         {
             var author = new Author()
@@ -58,7 +58,7 @@ namespace BookOnline.Controllers
 
         }
 
-        [HttpPut]
+        [HttpPut("UpdateAuthor")]
         public async Task<IActionResult> UpdateTable(int id,[FromForm] AuthorDto dto)
         {   
             
@@ -84,7 +84,7 @@ namespace BookOnline.Controllers
             return Ok(author);
         }
 
-        [HttpDelete]
+        [HttpDelete("DeleteAuthor")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
             var author= await _authorService.GetByIDAsync(id);

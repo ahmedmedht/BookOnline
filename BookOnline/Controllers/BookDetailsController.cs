@@ -23,14 +23,14 @@ namespace BookOnline.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllBookInfo")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _bookDetailService.GetAllAsync());
 
         }
 
-        [HttpPost]
+        [HttpPost("AddNewBookInfo")]
         public async Task<IActionResult> AddBook([FromForm] BookDetailsDto dto)
         {
             var author = await _authorService.GetByIDAsync(dto.AuthorId);
@@ -59,8 +59,8 @@ namespace BookOnline.Controllers
 
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(int id,[FromForm] BookDetailsDto dto)
+        [HttpPut("UpdateBookInfo")]
+        public async Task<IActionResult> UpdateBookDetails(int id,[FromForm] BookDetailsDto dto)
         {
             var book = await _bookDetailService.GetByIDAsync(id);
             if (book == null)
@@ -84,6 +84,23 @@ namespace BookOnline.Controllers
             _bookDetailService.Update(book);
             return Ok(book);
         }
+
+        [HttpDelete("DeleteBookInfo")]
+        public async Task<IActionResult> DeleteBook(int id) {
+        
+                var book = await _bookDetailService.GetByIDAsync(id);
+                if (book == null)
+                    return BadRequest("Book isn't found");
+            try
+            {
+                _bookDetailService.DeleteBook(book);
+                return Ok(book);
+            }
+            catch (Exception ex) { 
+                return BadRequest(ex.Message);
+                }
+
+            }
 
 
 
