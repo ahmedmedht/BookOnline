@@ -4,6 +4,7 @@ namespace BookOnline.Dto
 {
     public class BookDetailsDto
     {
+        public int? Id { get; set; }
         [MaxLength(100)]
         public string Title { get; set; }
         [MaxLength(3000)]

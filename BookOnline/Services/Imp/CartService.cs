@@ -28,9 +28,33 @@
             return await _context.Carts.Include(b => b.Product).ToListAsync();
         }
 
-        public async Task<Cart> GetByIDAsync(int id)
+        public async Task<Response<Cart>> GetByIDAsync(int? id)
         {
-            return await _context.Carts.Include(b => b.Product).SingleOrDefaultAsync(b => b.Id == id);
+            if (id == null)
+            {
+                return new Response<Cart>
+                {
+                    ErrorMessage = "ID is requird",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            var res = await _context.Carts.Include(a => a.Product).SingleOrDefaultAsync(b => b.Id == id);
+            if (res == null)
+            {
+                return new Response<Cart>
+                {
+                    ErrorMessage = "Cart not found",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            return new Response<Cart>
+            {
+                ErrorMessage = "",
+                IsSuccess = false,
+                Value = res
+            };
         }
 
         public Cart Update(Cart cart)

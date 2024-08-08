@@ -33,8 +33,8 @@ namespace BookOnline.Migrations
                     b.Property<DateOnly>("BrithDayDate")
                         .HasColumnType("date");
 
-                    b.Property<byte[]>("ImageAuthor")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<Guid?>("ImageAuthorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -42,6 +42,8 @@ namespace BookOnline.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageAuthorId");
 
                     b.ToTable("Author");
                 });
@@ -57,9 +59,6 @@ namespace BookOnline.Migrations
                     b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("BookImage")
-                        .HasColumnType("varbinary(max)");
-
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -74,6 +73,9 @@ namespace BookOnline.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<Guid?>("ImageBookId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<double>("Rate")
                         .HasColumnType("float");
 
@@ -85,6 +87,8 @@ namespace BookOnline.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("ImageBookId");
 
                     b.ToTable("BookDetails");
                 });
@@ -109,7 +113,7 @@ namespace BookOnline.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
-                    b.Property<double>("price")
+                    b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -141,6 +145,30 @@ namespace BookOnline.Migrations
                     b.ToTable("Carts");
                 });
 
+            modelBuilder.Entity("BookOnline.Model.ImageInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ImageInfo");
+                });
+
+            modelBuilder.Entity("BookOnline.Model.Author", b =>
+                {
+                    b.HasOne("BookOnline.Model.ImageInfo", "ImageAuthor")
+                        .WithMany()
+                        .HasForeignKey("ImageAuthorId");
+
+                    b.Navigation("ImageAuthor");
+                });
+
             modelBuilder.Entity("BookOnline.Model.BookDetail", b =>
                 {
                     b.HasOne("BookOnline.Model.Author", "Author")
@@ -149,7 +177,13 @@ namespace BookOnline.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BookOnline.Model.ImageInfo", "ImageBook")
+                        .WithMany()
+                        .HasForeignKey("ImageBookId");
+
                     b.Navigation("Author");
+
+                    b.Navigation("ImageBook");
                 });
 
             modelBuilder.Entity("BookOnline.Model.BookProduct", b =>

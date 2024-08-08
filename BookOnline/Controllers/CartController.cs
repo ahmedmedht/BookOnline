@@ -30,11 +30,9 @@ namespace BookOnline.Controllers
         public async Task<IActionResult> AddNewCart(ProductCartDto dto)
         {
             var product = await _bookProductService.GetByIDAsync(dto.productId);
-            if (product == null)
-            {
-                return BadRequest("Product isn't found");
-            }
-            else if (product.Count >= dto.count) {
+            if (product.IsSuccess == false)
+                return BadRequest(product.ErrorMessage);
+            else if (product.Value.Count >= dto.count) {
                 return BadRequest("There is not enough product");
             }
 
@@ -42,33 +40,27 @@ namespace BookOnline.Controllers
             for (int i = 0; i < dto.count; i++)
             {
                 cart.ProductId.Add(dto.productId);
-                cart.TotalPrice += product.price;
+                cart.TotalPrice += product.Value.Price;
             }
-            product.Count -= dto.count;
-            _bookProductService.Update(product);
+
+            product.Value.Count -= dto.count;
+
+            _bookProductService.Update(product.Value);
             await _cartService.AddAsync(cart);
-
-
-            
 
             return Ok(cart);
         }
         [HttpPut("AddNewProductToCart")]
-        public async Task<IActionResult> AddNewProductToCart(int cartId,ProductCartDto dto)
+        public async Task<IActionResult> AddNewProductToCart(ProductCartDto dto)
         {
-            var cart = await _cartService.GetByIDAsync(cartId);
-            if (cart == null)
-            {
-                return BadRequest("Cart isn't found");
-
-            }
+            var cart = await _cartService.GetByIDAsync(dto.Id);
+            if (cart.IsSuccess == false)
+                return BadRequest(cart.ErrorMessage);
 
             var product = await _bookProductService.GetByIDAsync(dto.productId);
-            if (product == null)
-            {
-                return BadRequest("Product isn't found");
-            }
-            else if (product.Count >= dto.count)
+            if (product.IsSuccess == false)
+                return BadRequest(product.ErrorMessage);
+            else if (product.Value.Count >= dto.count)
             {
                 return BadRequest("There is not enough product");
             }
@@ -76,47 +68,43 @@ namespace BookOnline.Controllers
             
             for (int i = 0; i < dto.count; i++)
             {
-                cart.ProductId.Add(dto.productId);
-                cart.TotalPrice += product.price;
+                cart.Value.ProductId.Add(dto.productId);
+                cart.Value.TotalPrice += product.Value.Price;
             }
-            product.Count -= dto.count;
-            _bookProductService.Update(product);
+            product.Value.Count -= dto.count;
+            _bookProductService.Update(product.Value);
 
-            _cartService.Update(cart);
+            _cartService.Update(cart.Value);
 
             return Ok(cart);
         }
 
         [HttpPut("RemoveProductFromCart")]
-        public async Task<IActionResult> RemoveProductFromCart(int cartId, ProductCartDto dto)
+        public async Task<IActionResult> RemoveProductFromCart(ProductCartDto dto)
         {
-            var cart = await _cartService.GetByIDAsync(cartId);
-            if (cart == null)
-            {
-                return BadRequest("Cart isn't found");
-            }
+            var cart = await _cartService.GetByIDAsync(dto.Id);
+            if (cart.IsSuccess == false)
+                return BadRequest(cart.ErrorMessage);
             var product = await _bookProductService.GetByIDAsync(dto.productId);
-            if (product == null)
-            {
-                return BadRequest("Product isn't found");
-            }
-            
-            
+            if (product.IsSuccess == false)
+                return BadRequest(product.ErrorMessage);
+
+
             for (int i = 0; i < dto.count; i++)
             {
-                if(cart.ProductId.Contains(dto.productId))
-                    cart.ProductId.Remove(dto.productId);
+                if(cart.Value.ProductId.Contains(dto.productId))
+                    cart.Value.ProductId.Remove(dto.productId);
                 else
                 {
-                    product.Count += i;
+                    product.Value.Count += i;
                     break;
                 }
-                cart.TotalPrice -= product.price;
+                cart.Value.TotalPrice -= product.Value.Price;
             }
             
-            _bookProductService.Update(product);
+            _bookProductService.Update(product.Value);
 
-            _cartService.Update(cart);
+            _cartService.Update(cart.Value);
 
             return Ok(cart);
         }
@@ -125,14 +113,12 @@ namespace BookOnline.Controllers
         public async Task<IActionResult> DeleteCart(int cartId)
         {
             var cart = await _cartService.GetByIDAsync(cartId);
-            if (cart == null)
-            {
-                return BadRequest("Cart isn't found");
-            }
-            if(cart.ProductId.Count > 0)
+            if (cart.IsSuccess == false)
+                return BadRequest(cart.ErrorMessage);
+            if (cart.Value.ProductId.Count > 0)
                 return BadRequest("Cart contains products");
-            _cartService.DeleteCart(cart);
-            return Ok(cart);
+            _cartService.DeleteCart(cart.Value);
+            return Ok(cart.Value);
         }
 
 

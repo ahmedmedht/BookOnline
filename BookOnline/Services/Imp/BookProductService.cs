@@ -28,9 +28,33 @@
             return await _context.Products.Include(b => b.BookDetail).ToListAsync();
         }
 
-        public async Task<BookProduct> GetByIDAsync(int id)
+        public async Task<Response<BookProduct>> GetByIDAsync(int? id)
         {
-            return await _context.Products.Include(b => b.BookDetail).SingleOrDefaultAsync(b => b.Id == id);
+            if (id == null)
+            {
+                return new Response<BookProduct>
+                {
+                    ErrorMessage = "ID is requird",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            var res = await _context.Products.Include(a => a.BookDetail).SingleOrDefaultAsync(b => b.Id == id);
+            if (res == null)
+            {
+                return new Response<BookProduct>
+                {
+                    ErrorMessage = "Product not found",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            return new Response<BookProduct>
+            {
+                ErrorMessage = "",
+                IsSuccess = false,
+                Value = res
+            };
         }
 
         public BookProduct Update(BookProduct product)

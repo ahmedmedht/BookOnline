@@ -5,7 +5,7 @@
         Task<IEnumerable<Author>> GetAllAsync();
         Task<Author> AddAsync(Author author);
 
-        Task<Author> GetByIDAsync(int id);
+        Task<Response<Author>> GetByIDAsync(int? id);
 
         Author Update(Author author);
         Author DeleteAuthor(Author author);

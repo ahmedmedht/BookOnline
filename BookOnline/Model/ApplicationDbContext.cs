@@ -15,5 +15,6 @@ namespace BookOnline.Model
         public DbSet<BookProduct> Products { get; set; }
         public DbSet<Author> Author { get; set; }
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<ImageInfo> Images { get; set; }
     }
 }

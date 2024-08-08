@@ -43,7 +43,7 @@ namespace BookOnline.Controllers
                 using (var dataStream = new MemoryStream())
                 {
                     await dto.BookImage.CopyToAsync(dataStream);
-                    book.BookImage = dataStream.ToArray();
+                    //book.BookImage = dataStream.ToArray();
                 }
             }
             //_mapper.Map<BookDetail>(dto);
@@ -60,41 +60,41 @@ namespace BookOnline.Controllers
         }
 
         [HttpPut("UpdateBookInfo")]
-        public async Task<IActionResult> UpdateBookDetails(int id,[FromForm] BookDetailsDto dto)
+        public async Task<IActionResult> UpdateBookDetails([FromForm] BookDetailsDto dto)
         {
-            var book = await _bookDetailService.GetByIDAsync(id);
-            if (book == null)
-                return BadRequest("Book isn't found");
+            var book = await _bookDetailService.GetByIDAsync(dto.Id);
+            if (book.IsSuccess == false)
+                return BadRequest(book.ErrorMessage);
 
             var author = await _authorService.GetByIDAsync(dto.AuthorId);
-            if (author == null)
-                return BadRequest("Author isn't found");
+            if (author.IsSuccess == false)
+                return BadRequest(author.ErrorMessage);
 
-            book = _mapper.Map<BookDetail>(dto);
+            book.Value = _mapper.Map<BookDetail>(dto);
 
             if (dto.BookImage != null)
             {
                 using (var dataStream = new MemoryStream())
                 {
                     await dto.BookImage.CopyToAsync(dataStream);
-                    book.BookImage = dataStream.ToArray();
+                   // book.BookImage = dataStream.ToArray();
                 }
             }
 
-            _bookDetailService.Update(book);
-            return Ok(book);
+            _bookDetailService.Update(book.Value);
+            return Ok(book.Value);
         }
 
         [HttpDelete("DeleteBookInfo")]
         public async Task<IActionResult> DeleteBook(int id) {
         
                 var book = await _bookDetailService.GetByIDAsync(id);
-                if (book == null)
-                    return BadRequest("Book isn't found");
+                if (book.IsSuccess == false)
+                return BadRequest(book.ErrorMessage);
             try
             {
-                _bookDetailService.DeleteBook(book);
-                return Ok(book);
+                _bookDetailService.DeleteBook(book.Value);
+                return Ok(book.Value);
             }
             catch (Exception ex) { 
                 return BadRequest(ex.Message);

@@ -8,7 +8,8 @@ namespace BookOnline.Model
         [MaxLength(100)]
         public string Name { get; set; }
         public DateOnly BrithDayDate { get; set; }
-        public byte[]?  ImageAuthor { get; set; }
+        public Guid? ImageAuthorId { get; set; }
+        public ImageInfo?  ImageAuthor { get; set; }
         public ICollection<BookDetail> BookDetail { get; set; }
     }
 }

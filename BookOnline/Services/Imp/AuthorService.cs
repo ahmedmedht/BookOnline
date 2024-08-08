@@ -1,4 +1,5 @@
 ﻿namespace BookOnline.Services.imp
+
 {
     public class AuthorService : IAuthorService
     {
@@ -29,9 +30,33 @@
             return await _context.Author.Include(b => b.BookDetail).ToListAsync();
         }
 
-        public async Task<Author> GetByIDAsync(int id)
+        public async Task<Response<Author>> GetByIDAsync(int? id)
         {
-            return await _context.Author.Include(a => a.BookDetail).SingleOrDefaultAsync(b => b.Id == id);
+            if (id == null)
+            {
+                return new Response<Author>
+                {
+                    ErrorMessage = "ID is requird",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            var res = await _context.Author.Include(a => a.BookDetail).SingleOrDefaultAsync(b => b.Id == id);
+            if (res == null)
+            {
+                return new Response<Author>
+                {
+                    ErrorMessage = "Author not found",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            return new Response<Author>
+            {
+                ErrorMessage = "",
+                IsSuccess = false,
+                Value = res
+            };
         }
 
         public Author Update(Author author)
@@ -40,5 +65,6 @@
             _context.SaveChanges();
             return author;
         }
+        
     }
 }

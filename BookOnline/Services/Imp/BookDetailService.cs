@@ -31,9 +31,33 @@ namespace BookOnline.Services.imp
             return await _context.BookDetails.Where(b => b.AuthorId == authorId || authorId == 0).Include(b => b.Author).ToListAsync();
         }
 
-        public async Task<BookDetail> GetByIDAsync(int id)
+        public async Task<Response<BookDetail>> GetByIDAsync(int? id)
         {
-            return await _context.BookDetails.SingleOrDefaultAsync(b => b.Id == id);
+            if (id == null)
+            {
+                return new Response<BookDetail>
+                {
+                    ErrorMessage = "ID is requird",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            var res = await _context.BookDetails.Include(a => a.Author).SingleOrDefaultAsync(b => b.Id == id);
+            if (res == null)
+            {
+                return new Response<BookDetail>
+                {
+                    ErrorMessage = "Book not found",
+                    IsSuccess = false,
+                    Value = null
+                };
+            }
+            return new Response<BookDetail>
+            {
+                ErrorMessage = "",
+                IsSuccess = false,
+                Value = res
+            };
         }
 
         public  BookDetail Update(BookDetail bookDetails)

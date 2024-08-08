@@ -41,44 +41,37 @@ namespace BookOnline.Controllers
         public async Task<IActionResult> AddNewProduct([FromForm] ProductDto dto)
         {
             var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
-            if (book == null) {
-                return BadRequest("Book isn't found");
-            }
+            if (book.IsSuccess == false)
+                return BadRequest(book.ErrorMessage);
             var product = _mapper.Map<BookProduct>(dto);
             await _bookProductService.AddAsync(product);
             return Ok(product);
         }
 
         [HttpPut("UpdateProduct")]
-        public async Task<IActionResult> UpdateProduct(int id,[FromForm] ProductDto dto)
+        public async Task<IActionResult> UpdateProduct([FromForm] ProductDto dto)
         {
-            var product = await _bookProductService.GetByIDAsync(id);
-            if (product == null)
-            {
-                return BadRequest("Product isn't found");
-            }
+            var product = await _bookProductService.GetByIDAsync(dto.Id);
+            if (product.IsSuccess == false)
+                return BadRequest(product.ErrorMessage);
             var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
-            if (book == null)
-            {
-                return BadRequest("New Book isn't found");
-            }
-            product=_mapper.Map<BookProduct>(dto);
+            if (book.IsSuccess == false)
+                return BadRequest(book.ErrorMessage);
+            product.Value =_mapper.Map<BookProduct>(dto);
 
-            await _bookProductService.AddAsync(product);
-            return Ok(product);
+            await _bookProductService.AddAsync(product.Value);
+            return Ok(product.Value);
         }
 
         [HttpDelete("DeleteProduct")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var product = await _bookProductService.GetByIDAsync(id);
-            if (product == null)
-            {
-                return BadRequest("Product isn't found");
-            }
-            
-            _bookProductService.DeleteBook(product);
-            return Ok(product);
+            if (product.IsSuccess == false)
+                return BadRequest(product.ErrorMessage);
+
+            _bookProductService.DeleteBook(product.Value);
+            return Ok(product.Value);
 
         }
 

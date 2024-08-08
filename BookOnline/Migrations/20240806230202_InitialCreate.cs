@@ -12,6 +12,32 @@ namespace BookOnline.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Carts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TotalPrice = table.Column<double>(type: "float", nullable: false),
+                    ProductId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImageInfo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImageInfo", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Author",
                 columns: table => new
                 {
@@ -19,24 +45,16 @@ namespace BookOnline.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     BrithDayDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ImageAuthor = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                    ImageAuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Author", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Carts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TotalPrice = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Carts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Author_ImageInfo_ImageAuthorId",
+                        column: x => x.ImageAuthorId,
+                        principalTable: "ImageInfo",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -50,7 +68,7 @@ namespace BookOnline.Migrations
                     Rate = table.Column<double>(type: "float", nullable: false),
                     Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Genre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    BookImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    ImageBookId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AuthorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -62,6 +80,11 @@ namespace BookOnline.Migrations
                         principalTable: "Author",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookDetails_ImageInfo_ImageBookId",
+                        column: x => x.ImageBookId,
+                        principalTable: "ImageInfo",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -71,7 +94,7 @@ namespace BookOnline.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Count = table.Column<int>(type: "int", nullable: false),
-                    price = table.Column<double>(type: "float", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
                     BookDetailsId = table.Column<int>(type: "int", nullable: false),
                     BookDetailId = table.Column<int>(type: "int", nullable: false),
                     CartId = table.Column<int>(type: "int", nullable: true)
@@ -93,9 +116,19 @@ namespace BookOnline.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Author_ImageAuthorId",
+                table: "Author",
+                column: "ImageAuthorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BookDetails_AuthorId",
                 table: "BookDetails",
                 column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookDetails_ImageBookId",
+                table: "BookDetails",
+                column: "ImageBookId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_BookDetailId",
@@ -122,6 +155,9 @@ namespace BookOnline.Migrations
 
             migrationBuilder.DropTable(
                 name: "Author");
+
+            migrationBuilder.DropTable(
+                name: "ImageInfo");
         }
     }
 }

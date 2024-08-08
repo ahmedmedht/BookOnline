@@ -14,7 +14,8 @@ namespace BookOnline.Model
         public string Category { get; set; }
         [MaxLength (50)]
         public String? Genre { get; set; }
-        public Byte[]? BookImage { get; set; }
+        public Guid? ImageBookId { get; set; }
+        public ImageInfo? ImageBook { get; set; }
         public int AuthorId { get; set; }
         public Author Author { get; set; }
 

@@ -6,7 +6,7 @@ namespace BookOnline.Services
     {
         Task<IEnumerable<BookDetail>> GetAllAsync(int AuthorId = 0);
         Task<BookDetail> AddAsync(BookDetail bookDetails);
-        Task<BookDetail> GetByIDAsync(int id);
+        Task<Response<BookDetail>> GetByIDAsync(int? id);
         BookDetail Update(BookDetail bookDetails);
         BookDetail DeleteBook(BookDetail bookDetails);
                 
