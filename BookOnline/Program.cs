@@ -23,6 +23,8 @@ builder.Services.AddTransient<IAuthorService, AuthorService>();
 builder.Services.AddTransient<IBookDetailService, BookDetailService>();
 builder.Services.AddTransient<IBookProductService, BookProductService>();
 builder.Services.AddTransient<ICartService, CartService>();
+builder.Services.AddTransient<IImageService, ImageService>();
+
 
 builder.Services.AddAutoMapper(typeof(Program));
 

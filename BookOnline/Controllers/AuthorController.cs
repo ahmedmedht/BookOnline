@@ -14,14 +14,15 @@ namespace BookOnline.Controllers
         private readonly IAuthorService _authorService;
         private readonly IImageService _imageService;
         private readonly IMapper _mapper;
-        //private readonly IMapper _mapper;
 
-        private new List<string> _allowedExtenstions = new() { ".jpg", ".png" };
-        private long _maxAllowedPosterSize = 1024 * 1024 * 5;
-        private string _folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "Images");
+        private readonly List<string> _allowedExtenstions = new() { ".jpg", ".png" };
+        private readonly long _maxAllowedPosterSize = 1024 * 1024 * 5;
+        private readonly string _folderPath = 
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "Images");
 
 
-        public AuthorController(IAuthorService authorService, IMapper mapper, IImageService imageService)
+        public AuthorController(IAuthorService authorService,
+            IMapper mapper, IImageService imageService)
         {
             _authorService = authorService;
             _mapper = mapper;
@@ -45,34 +46,13 @@ namespace BookOnline.Controllers
             };
             if (dto.ImageAuthor != null)
             {
-                if (!_allowedExtenstions.Contains(Path.GetExtension(dto.ImageAuthor.FileName).ToLower()))
-                    return BadRequest("Only .png and .jpg images are allowed");
-
-                if (_maxAllowedPosterSize < dto.ImageAuthor.Length)
-                    return BadRequest("Max size 1 mb");
-
-                if (!Path.Exists(_folderPath))
-                    Directory.CreateDirectory(_folderPath);
-                Guid guid = Guid.NewGuid();
-
-                string newFileName = guid.ToString() + Path.GetExtension(dto.ImageAuthor.FileName);
-                string filePath = Path.Combine(_folderPath, newFileName);
-
-                try
-                {
-                    // Save the file
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await dto.ImageAuthor.CopyToAsync(stream);
-                    }
-
+                var Image = await _imageService.SaveImageInPath(dto.ImageAuthor);
+                if (Image.IsSuccess == false) {
+                    return BadRequest(Image.ErrorMessage);
                 }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, $"Internal server error: {ex.Message}");
-                }
-                await _imageService.AddAsync(new ImageInfo() { Id = guid, Path = filePath });
-                author.ImageAuthorId = guid;
+                
+                await _imageService.AddAsync(Image.Value);
+                author.ImageAuthorId = Image.Value.Id;
 
             }
 
@@ -93,16 +73,15 @@ namespace BookOnline.Controllers
 
             if (dto.ImageAuthor != null)
             {
-                if (!_allowedExtenstions.Contains(Path.GetExtension(dto.ImageAuthor.FileName).ToLower()))
-                    return BadRequest("Only .png and .jpg images are allowed");
+                var Image = await _imageService.SaveImageInPath(dto.ImageAuthor);
+                if (Image.IsSuccess == false)
+                {
+                    return BadRequest(Image.ErrorMessage);
+                }
 
-                if (_maxAllowedPosterSize < dto.ImageAuthor.Length)
-                    return BadRequest("Max size 1 mb");
+                await _imageService.AddAsync(Image.Value);
+                author.Value.ImageAuthorId = Image.Value.Id;
 
-                using var dataStream = new MemoryStream();
-                await dto.ImageAuthor.CopyToAsync(dataStream);
-
-               // author.ImageAuthor = dataStream.ToArray();
             }
             _authorService.Update(author.Value);
             return Ok(author.Value);
@@ -116,7 +95,14 @@ namespace BookOnline.Controllers
                 return BadRequest(author.ErrorMessage);
             if (author.Value.BookDetail.Count() > 0)
                 return BadRequest("Please delete the author's books first");
-            _authorService.DeleteAuthor(author.Value);
+            try
+            {
+                _authorService.DeleteAuthor(author.Value);
+
+            }
+            catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
             return Ok(author);
         }
 

@@ -54,7 +54,7 @@
             return new Response<Author>
             {
                 ErrorMessage = "",
-                IsSuccess = false,
+                IsSuccess = true,
                 Value = res
             };
         }

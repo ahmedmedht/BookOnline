@@ -2,6 +2,7 @@
 {
     public interface IImageService
     {
+        Task<Response<ImageInfo>> SaveImageInPath(IFormFile file);
         Task<ImageInfo> AddAsync(ImageInfo image);
         Task<ImageInfo> GetByIDAsync(Guid guid);
         ImageInfo UpdateImage(ImageInfo image);

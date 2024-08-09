@@ -55,7 +55,7 @@ namespace BookOnline.Services.imp
             return new Response<BookDetail>
             {
                 ErrorMessage = "",
-                IsSuccess = false,
+                IsSuccess = true,
                 Value = res
             };
         }

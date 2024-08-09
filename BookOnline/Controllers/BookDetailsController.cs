@@ -14,13 +14,20 @@ namespace BookOnline.Controllers
     {
         private readonly IBookDetailService _bookDetailService;
         private readonly IAuthorService _authorService;
+        private readonly IImageService _imageService;
         private readonly IMapper _mapper;
 
-        public BookDetailsController(IBookDetailService bookDetailService, IAuthorService authorService,IMapper mapper)
+        private new List<string> _allowedExtenstions = new() { ".jpg", ".png" };
+        private long _maxAllowedPosterSize = 1024 * 1024 * 5;
+        private string _folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "Images");
+
+        public BookDetailsController(IBookDetailService bookDetailService, IAuthorService authorService,IMapper mapper,IImageService imageService)
+
         {
             _bookDetailService = bookDetailService;
             _authorService = authorService;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
         [HttpGet("GetAllBookInfo")]
@@ -40,16 +47,17 @@ namespace BookOnline.Controllers
             var book = _mapper.Map<BookDetail>(dto);
             if (dto.BookImage != null)
             {
-                using (var dataStream = new MemoryStream())
+                var Image = await _imageService.SaveImageInPath(dto.BookImage);
+                if (Image.IsSuccess == false)
                 {
-                    await dto.BookImage.CopyToAsync(dataStream);
-                    //book.BookImage = dataStream.ToArray();
+                    return BadRequest(Image.ErrorMessage);
                 }
+
+                await _imageService.AddAsync(Image.Value);
+                book.ImageBookId = Image.Value.Id;
             }
-            //_mapper.Map<BookDetail>(dto);
 
             await _bookDetailService.AddAsync(book);
-            //           _authorService.AddBookToAuthor(author, book);
             return Ok(book);
         }
         [HttpGet("GetBookByAuthor")]
@@ -74,11 +82,14 @@ namespace BookOnline.Controllers
 
             if (dto.BookImage != null)
             {
-                using (var dataStream = new MemoryStream())
+                var Image = await _imageService.SaveImageInPath(dto.BookImage);
+                if (Image.IsSuccess == false)
                 {
-                    await dto.BookImage.CopyToAsync(dataStream);
-                   // book.BookImage = dataStream.ToArray();
+                    return BadRequest(Image.ErrorMessage);
                 }
+
+                await _imageService.AddAsync(Image.Value);
+                book.Value.ImageBookId = Image.Value.Id;
             }
 
             _bookDetailService.Update(book.Value);

@@ -7,7 +7,12 @@ namespace BookOnline.Helper
     {
         public MappingProfile() {
             CreateMap<Author, AuthorDto>();
+            CreateMap<AuthorDto, Author>();
+
+
             CreateMap<BookDetail, BookDetailsDto>();
+            CreateMap<BookDetailsDto, BookDetail>();
+
             CreateMap<BookProduct, ProductDto>();
         }
     }

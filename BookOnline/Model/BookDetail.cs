@@ -13,11 +13,11 @@ namespace BookOnline.Model
         [MaxLength (50)]
         public string Category { get; set; }
         [MaxLength (50)]
-        public String? Genre { get; set; }
+        public String? GenreForCategory { get; set; }
         public Guid? ImageBookId { get; set; }
         public ImageInfo? ImageBook { get; set; }
-        public int AuthorId { get; set; }
-        public Author Author { get; set; }
+        public int? AuthorId { get; set; }
+        public Author? Author { get; set; }
 
     }
 }

@@ -15,6 +15,6 @@ namespace BookOnline.Dto
         [MaxLength(50)]
         public String? Genre { get; set; }
         public IFormFile? BookImage { get; set; }
-        public int AuthorId { get; set; }
+        public int? AuthorId { get; set; }
     }
 }

@@ -52,7 +52,7 @@
             return new Response<BookProduct>
             {
                 ErrorMessage = "",
-                IsSuccess = false,
+                IsSuccess = true,
                 Value = res
             };
         }

@@ -52,7 +52,7 @@
             return new Response<Cart>
             {
                 ErrorMessage = "",
-                IsSuccess = false,
+                IsSuccess = true,
                 Value = res
             };
         }

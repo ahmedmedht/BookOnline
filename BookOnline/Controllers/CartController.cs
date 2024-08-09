@@ -26,15 +26,16 @@ namespace BookOnline.Controllers
             return Ok(carts);
 
         }
+
         [HttpPost("AddProductToNewCart")]
         public async Task<IActionResult> AddNewCart(ProductCartDto dto)
         {
             var product = await _bookProductService.GetByIDAsync(dto.productId);
             if (product.IsSuccess == false)
                 return BadRequest(product.ErrorMessage);
-            else if (product.Value.Count >= dto.count) {
+            else if (product.Value.Count >= dto.count) 
                 return BadRequest("There is not enough product");
-            }
+            
 
             var cart = new Cart();
             for (int i = 0; i < dto.count; i++)
@@ -50,6 +51,8 @@ namespace BookOnline.Controllers
 
             return Ok(cart);
         }
+
+
         [HttpPut("AddNewProductToCart")]
         public async Task<IActionResult> AddNewProductToCart(ProductCartDto dto)
         {
@@ -61,9 +64,8 @@ namespace BookOnline.Controllers
             if (product.IsSuccess == false)
                 return BadRequest(product.ErrorMessage);
             else if (product.Value.Count >= dto.count)
-            {
                 return BadRequest("There is not enough product");
-            }
+            
 
             
             for (int i = 0; i < dto.count; i++)
@@ -71,6 +73,7 @@ namespace BookOnline.Controllers
                 cart.Value.ProductId.Add(dto.productId);
                 cart.Value.TotalPrice += product.Value.Price;
             }
+
             product.Value.Count -= dto.count;
             _bookProductService.Update(product.Value);
 
@@ -103,7 +106,6 @@ namespace BookOnline.Controllers
             }
             
             _bookProductService.Update(product.Value);
-
             _cartService.Update(cart.Value);
 
             return Ok(cart);
