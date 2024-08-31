@@ -4,11 +4,11 @@ namespace BookOnline.Services
 {
     public interface IBookDetailService
     {
-        Task<IEnumerable<BookDetail>> GetAllAsync(int AuthorId = 0);
-        Task<BookDetail> AddAsync(BookDetail bookDetails);
+        Task<Response<IEnumerable<BookDetail>>> GetAllAsync();
+        Task<Response<BookDetail>> AddAsync(BookDetailsDto bookDetails);
         Task<Response<BookDetail>> GetByIDAsync(int? id);
-        BookDetail Update(BookDetail bookDetails);
-        BookDetail DeleteBook(BookDetail bookDetails);
+        Task<Response<BookDetail>> Update(BookDtoUpdate dto);
+        Task<Response<BookDetail>> DeleteBook(int id);
                 
     }
 }

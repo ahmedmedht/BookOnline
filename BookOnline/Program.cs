@@ -13,17 +13,18 @@ builder.Services.AddControllers()
 );
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 option.UseSqlServer(connectionString));
+
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddTransient<IAuthorService, AuthorService>();
-builder.Services.AddTransient<IBookDetailService, BookDetailService>();
-builder.Services.AddTransient<IBookProductService, BookProductService>();
-builder.Services.AddTransient<ICartService, CartService>();
-builder.Services.AddTransient<IImageService, ImageService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IBookDetailService, BookDetailService>();
+builder.Services.AddScoped<IBookProductService, BookProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 
 builder.Services.AddAutoMapper(typeof(Program));

@@ -12,65 +12,57 @@ namespace BookOnline.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IBookProductService _bookProductService;
-        private readonly IBookDetailService _bookDetailService;
-        private readonly IMapper _mapper;
 
-        public ProductController(IBookProductService bookProductService, IBookDetailService bookDetailService
-            , IMapper mapper)
+
+        public ProductController(IBookProductService bookProductService)
         {
             _bookProductService = bookProductService;
-            _bookDetailService = bookDetailService;
-            _mapper = mapper;
         }
 
         [HttpGet("GetAllProduct")]
         public async Task<IActionResult> GetAllProduct()
         {
             var products = await _bookProductService.GetAllAsync();
-            return Ok(products);
+            if (!products.IsSuccess)
+                return BadRequest(products.ErrorMessage);
 
+            return Ok(products.Value);
         }
         [HttpGet("GetProductById")]
         public async Task<IActionResult> GetProductById(int id)
         {
             var product = await _bookProductService.GetByIDAsync(id);
-            return Ok(product);
+            return Ok(product.Value);
 
         }
         [HttpPost("AddNewProduct")]
         public async Task<IActionResult> AddNewProduct([FromForm] ProductDto dto)
         {
-            var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
-            if (book.IsSuccess == false)
-                return BadRequest(book.ErrorMessage);
-            var product = _mapper.Map<BookProduct>(dto);
-            await _bookProductService.AddAsync(product);
-            return Ok(product);
+            
+            var product=await _bookProductService.AddAsync(dto);
+            if (!product.IsSuccess) 
+                return BadRequest(product.ErrorMessage);
+
+            return Ok(product.Value);
         }
 
         [HttpPut("UpdateProduct")]
-        public async Task<IActionResult> UpdateProduct([FromForm] ProductDto dto)
+        public async Task<IActionResult> UpdateProduct([FromForm] ProductDtoUpdate dto)
         {
-            var product = await _bookProductService.GetByIDAsync(dto.Id);
-            if (product.IsSuccess == false)
+            var product = await _bookProductService.Update(dto);
+            if (!product.IsSuccess)
                 return BadRequest(product.ErrorMessage);
-            var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
-            if (book.IsSuccess == false)
-                return BadRequest(book.ErrorMessage);
-            product.Value =_mapper.Map<BookProduct>(dto);
 
-            await _bookProductService.AddAsync(product.Value);
             return Ok(product.Value);
         }
 
         [HttpDelete("DeleteProduct")]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var product = await _bookProductService.GetByIDAsync(id);
-            if (product.IsSuccess == false)
+            var product = await _bookProductService.DeleteBook(id);
+            if (!product.IsSuccess)
                 return BadRequest(product.ErrorMessage);
 
-            _bookProductService.DeleteBook(product.Value);
             return Ok(product.Value);
 
         }

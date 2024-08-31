@@ -2,10 +2,11 @@
 {
     public interface ICartService
     {
-        Task<IEnumerable<Cart>> GetAllAsync();
-        Task<Cart> AddAsync(Cart cart);
+        Task<Response<IEnumerable<Cart>>> GetAllAsync();
+        Task<Response<Cart>> AddAsync(ProductCartDto dto);
         Task<Response<Cart>> GetByIDAsync(int? id);
-        Cart Update(Cart cart);
-        Cart DeleteCart(Cart cart);
+        Task<Response<Cart>> UpdateRemove(CartDtoUpdate dto);
+        Task<Response<Cart>> UpdateAdd(CartDtoUpdate cart);
+        Task<Response<Cart>> DeleteCart(int id);
     }
 }

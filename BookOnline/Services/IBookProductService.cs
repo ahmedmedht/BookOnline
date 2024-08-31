@@ -2,10 +2,10 @@
 {
     public interface IBookProductService
     {
-        Task<IEnumerable<BookProduct>> GetAllAsync();
-        Task<BookProduct> AddAsync(BookProduct bookProduct);
-        Task<Response<BookProduct>> GetByIDAsync(int? id);
-        BookProduct Update(BookProduct product);
-        BookProduct DeleteBook(BookProduct product);
+        Task<Response<IEnumerable<BookProduct>>> GetAllAsync();
+        Task<Response<BookProduct>> AddAsync(ProductDto dto);
+        Task<Response<BookProduct>> GetByIDAsync(int id);
+        Task<Response<BookProduct>> Update(ProductDtoUpdate product);
+        Task<Response<BookProduct>> DeleteBook(int id);
     }
 }

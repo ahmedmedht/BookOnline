@@ -1,34 +1,91 @@
-﻿namespace BookOnline.Services.Imp
+﻿using AutoMapper;
+
+namespace BookOnline.Services.Imp
 {
     public class BookProductService : IBookProductService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBookDetailService _bookDetailService;
+        private readonly IMapper _mapper;
 
-        public BookProductService(ApplicationDbContext context)
+        public BookProductService(ApplicationDbContext context, IBookDetailService bookDetailService, IMapper mapper)
         {
             _context = context;
+            _bookDetailService = bookDetailService;
+            _mapper = mapper;
         }
 
-        public async Task<BookProduct> AddAsync(BookProduct product)
+        public async Task<Response<BookProduct>> AddAsync(ProductDto dto)
         {
-            await _context.AddAsync(product);
-            _context.SaveChanges();
-            return product;
+            var product = new Response<BookProduct>();
+            var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
+            if (book.IsSuccess == false){
+                product.ErrorMessage = book.ErrorMessage;
+                product.IsSuccess = false;
+                return product;
+            }
+
+            product.Value = _mapper.Map<BookProduct>(dto);
+            try
+            {
+                await _context.AddAsync(product.Value);
+                _context.SaveChanges();
+
+                product.IsSuccess = true;
+                return product;
+            }
+            catch (Exception ex) { 
+                product.ErrorMessage = ex.Message;
+                product.IsSuccess = false;
+                return product;
+            }
+            
         }
 
-        public BookProduct DeleteBook(BookProduct product)
+        public async Task<Response<BookProduct>> DeleteBook(int id)
         {
-            _context.Remove(product);
-            _context.SaveChanges();
-            return product;
+            var product = await GetByIDAsync(id);
+            if (product.IsSuccess == false)
+                return product;
+
+            try
+            {
+                _context.Remove(product);
+                _context.SaveChanges();
+                product.IsSuccess = true;
+                return product;
+
+            }
+            catch (Exception ex)
+            {
+                product.ErrorMessage = ex.Message;
+                product.IsSuccess = false;
+                return product;
+            }
         }
 
-        public async Task<IEnumerable<BookProduct>> GetAllAsync()
+        public async Task<Response<IEnumerable<BookProduct>>> GetAllAsync()
         {
-            return await _context.Products.Include(b => b.BookDetail).ToListAsync();
+            try
+            {
+                var products = await _context.Products.Include(b => b.BookDetail).ToListAsync();
+                return new Response<IEnumerable<BookProduct>>
+                {
+                    IsSuccess = true,
+                    Value = products
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<IEnumerable<BookProduct>>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message
+                };
+            }
         }
 
-        public async Task<Response<BookProduct>> GetByIDAsync(int? id)
+        public async Task<Response<BookProduct>> GetByIDAsync(int id)
         {
             if (id == null)
             {
@@ -57,11 +114,40 @@
             };
         }
 
-        public BookProduct Update(BookProduct product)
+        public async Task<Response<BookProduct>> Update(ProductDtoUpdate dto)
         {
-            _context.Update(product);
-            _context.SaveChanges();
-            return product;
+            var product = await GetByIDAsync(dto.Id);
+            if (product.IsSuccess == false)
+                return product;
+
+            if(dto.BookDetailsId != null) { 
+            var book = await _bookDetailService.GetByIDAsync(dto.BookDetailsId);
+            if (book.IsSuccess == false)
+                {
+                    product.ErrorMessage = book.ErrorMessage;
+                    product.IsSuccess = false;
+                    return product;
+                }
+                product.Value.BookDetailsId = book.Value.Id;
+            }
+            if (dto.Count != -1) 
+                product.Value.Count = dto.Count;
+            if (dto.price != -1)
+                product.Value.Price = dto.price;
+
+            try
+            {
+                _context.Update(product);
+                _context.SaveChanges();
+                product.IsSuccess = true;
+                return product;
+
+            }
+            catch (Exception ex) { 
+                product.ErrorMessage = ex.Message;
+                product.IsSuccess = false;
+                return product;
+            }
         }
     }
 }

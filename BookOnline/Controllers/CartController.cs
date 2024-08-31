@@ -1,4 +1,5 @@
 ﻿using BookOnline.Dto;
+using BookOnline.Model;
 using BookOnline.Services;
 using BookOnline.Services.imp;
 using Microsoft.AspNetCore.Http;
@@ -10,12 +11,10 @@ namespace BookOnline.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly IBookProductService _bookProductService;
         private readonly ICartService _cartService;
 
-        public CartController(IBookProductService bookProductService, ICartService cartService)
+        public CartController( ICartService cartService)
         {
-            _bookProductService = bookProductService;
             _cartService = cartService;
         }
 
@@ -23,103 +22,56 @@ namespace BookOnline.Controllers
         public async Task<IActionResult> GetAllCart()
         {
             var carts = await _cartService.GetAllAsync();
-            return Ok(carts);
+            if (!carts.IsSuccess)
+                return BadRequest(carts.ErrorMessage);
+
+            return Ok(carts.Value);
 
         }
 
         [HttpPost("AddProductToNewCart")]
         public async Task<IActionResult> AddNewCart(ProductCartDto dto)
         {
-            var product = await _bookProductService.GetByIDAsync(dto.productId);
-            if (product.IsSuccess == false)
-                return BadRequest(product.ErrorMessage);
-            else if (product.Value.Count >= dto.count) 
-                return BadRequest("There is not enough product");
-            
+            var cart = await _cartService.AddAsync(dto);
 
-            var cart = new Cart();
-            for (int i = 0; i < dto.count; i++)
-            {
-                cart.ProductId.Add(dto.productId);
-                cart.TotalPrice += product.Value.Price;
-            }
+            if (!cart.IsSuccess)
+                return BadRequest(cart.ErrorMessage);
 
-            product.Value.Count -= dto.count;
-
-            _bookProductService.Update(product.Value);
-            await _cartService.AddAsync(cart);
-
-            return Ok(cart);
+            return Ok(cart.Value);
         }
 
 
         [HttpPut("AddNewProductToCart")]
-        public async Task<IActionResult> AddNewProductToCart(ProductCartDto dto)
+        public async Task<IActionResult> AddNewProductToCart(CartDtoUpdate dto)
         {
-            var cart = await _cartService.GetByIDAsync(dto.Id);
-            if (cart.IsSuccess == false)
+            var cart = await _cartService.UpdateAdd(dto);
+
+            if (!cart.IsSuccess)
                 return BadRequest(cart.ErrorMessage);
 
-            var product = await _bookProductService.GetByIDAsync(dto.productId);
-            if (product.IsSuccess == false)
-                return BadRequest(product.ErrorMessage);
-            else if (product.Value.Count >= dto.count)
-                return BadRequest("There is not enough product");
-            
-
-            
-            for (int i = 0; i < dto.count; i++)
-            {
-                cart.Value.ProductId.Add(dto.productId);
-                cart.Value.TotalPrice += product.Value.Price;
-            }
-
-            product.Value.Count -= dto.count;
-            _bookProductService.Update(product.Value);
-
-            _cartService.Update(cart.Value);
-
-            return Ok(cart);
+            return Ok(cart.Value);
         }
 
         [HttpPut("RemoveProductFromCart")]
-        public async Task<IActionResult> RemoveProductFromCart(ProductCartDto dto)
+        public async Task<IActionResult> RemoveProductFromCart(CartDtoUpdate dto)
         {
-            var cart = await _cartService.GetByIDAsync(dto.Id);
-            if (cart.IsSuccess == false)
+            var cart = await _cartService.UpdateRemove(dto);
+
+            if (!cart.IsSuccess)
                 return BadRequest(cart.ErrorMessage);
-            var product = await _bookProductService.GetByIDAsync(dto.productId);
-            if (product.IsSuccess == false)
-                return BadRequest(product.ErrorMessage);
 
-
-            for (int i = 0; i < dto.count; i++)
-            {
-                if(cart.Value.ProductId.Contains(dto.productId))
-                    cart.Value.ProductId.Remove(dto.productId);
-                else
-                {
-                    product.Value.Count += i;
-                    break;
-                }
-                cart.Value.TotalPrice -= product.Value.Price;
-            }
-            
-            _bookProductService.Update(product.Value);
-            _cartService.Update(cart.Value);
-
-            return Ok(cart);
+            return Ok(cart.Value);
         }
 
         [HttpDelete("DeleteCart")]
-        public async Task<IActionResult> DeleteCart(int cartId)
+        public async Task<IActionResult> DeleteCart(int id)
         {
-            var cart = await _cartService.GetByIDAsync(cartId);
-            if (cart.IsSuccess == false)
+           
+            var cart =await _cartService.DeleteCart(id);
+
+            if(!cart.IsSuccess)
                 return BadRequest(cart.ErrorMessage);
-            if (cart.Value.ProductId.Count > 0)
-                return BadRequest("Cart contains products");
-            _cartService.DeleteCart(cart.Value);
+
             return Ok(cart.Value);
         }
 

@@ -1,16 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BookOnline.Dto
+namespace BookOnline.Dto.Update
 {
-    public class BookDetailsDto
+    public class BookDtoUpdate
     {
+        public int Id { get; set; }
         [MaxLength(100)]
-        public string Title { get; set; }
+        public string? Title { get; set; }
         [MaxLength(3000)]
-        public string Description { get; set; }
-        public double Rate { get; set; }
+        public string? Description { get; set; }
+        public double Rate { get; set; } = -1;
         [MaxLength(50)]
-        public string Category { get; set; }
+        public string? Category { get; set; }
         [MaxLength(50)]
         public String? GenreForCategory { get; set; }
         public IFormFile? BookImage { get; set; }
